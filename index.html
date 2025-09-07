@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lions Gate Bridge Traffic</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196F3">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌉 Lions Gate Bridge Traffic</h1>
+            <p id="lastUpdated" class="last-updated">Loading...</p>
+        </header>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading traffic data...</p>
+        </div>
+
+        <main id="content" style="display: none;">
+            <!-- Live Webcam -->
+            <section class="card">
+                <h2>📹 Live Webcam</h2>
+                <img id="webcamImage" alt="Lions Gate Bridge Webcam" class="traffic-image">
+            </section>
+
+            <!-- Lane Configuration -->
+            <section class="card" id="laneConfig">
+                <h2>🚗 Lane Configuration</h2>
+                <div class="lane-display">
+                    <div class="lane-info northbound">
+                        <span class="label">Northbound</span>
+                        <span id="nbLanes" class="lane-count">-</span>
+                    </div>
+                    <div class="lane-info southbound">
+                        <span class="label">Southbound</span>
+                        <span id="sbLanes" class="lane-count">-</span>
+                    </div>
+                </div>
+                <p class="analysis-info">
+                    <span id="confidence">-</span>% confidence • <span id="method">-</span>
+                </p>
+            </section>
+
+            <!-- Traffic Delays -->
+            <section class="card">
+                <h2>⏱️ Traffic Delays</h2>
+                <img id="delayImage" alt="Traffic Delays" class="traffic-image">
+            </section>
+
+            <!-- Queue Map -->
+            <section class="card">
+                <h2>🗺️ Traffic Queue Map</h2>
+                <img id="queueImage" alt="Traffic Queue Map" class="traffic-image">
+            </section>
+
+            <!-- Debug Info -->
+            <section class="card debug-card">
+                <button id="debugToggle" class="debug-button">
+                    🔍 Computer Vision Debug <span id="debugArrow">▼</span>
+                </button>
+                <div id="debugInfo" class="debug-content" style="display: none;">
+                    <div class="debug-row">
+                        <span>Total Vehicles:</span>
+                        <span id="debugVehicles">-</span>
+                    </div>
+                    <div class="debug-row">
+                        <span>Northbound:</span>
+                        <span id="debugNB">-</span>
+                    </div>
+                    <div class="debug-row">
+                        <span>Southbound:</span>
+                        <span id="debugSB">-</span>
+                    </div>
+                    <div class="debug-row">
+                        <span>Traffic Density:</span>
+                        <span id="debugDensity">-</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Display -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </main>
+
+        <!-- Refresh Button -->
+        <button id="refreshBtn" class="refresh-button">
+            <span id="refreshIcon">🔄</span> Refresh All
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.last-updated {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.9rem;
+}
+
+.loading {
+    text-align: center;
+    color: white;
+    padding: 40px 20px;
+}
+
+.spinner {
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.traffic-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.lane-display {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.lane-info {
+    text-align: center;
+    flex: 1;
+}
+
+.label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.northbound .label {
+    color: #28a745;
+}
+
+.southbound .label {
+    color: #007bff;
+}
+
+.lane-count {
+    display: block;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.northbound .lane-count {
+    color: #28a745;
+}
+
+.southbound .lane-count {
+    color: #007bff;
+}
+
+.analysis-info {
+    font-size: 0.8rem;
+    color: #666;
+    text-align: center;
+}
+
+.debug-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.debug-button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.debug-content {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 6px;
+}
+
+.debug-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.8rem;
+}
+
+.refresh-button {
+    width: 100%;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.refresh-button:hover {
+    background: #0056b3;
+}
+
+.refresh-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .lane-display {
+        padding: 12px;
+    }
+    
+    .lane-count {
+        font-size: 1.8rem;
+    }
+}
+
+/* PWA Install Button */
+.install-prompt {
+    background: #28a745;
+    color: white;
+    padding: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
