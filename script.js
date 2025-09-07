@@ -64,23 +64,67 @@ class LionsGateTrafficApp {
     }
     
     async fetchImage(url, type) {
-        // Add cache busting to get fresh images
-        const cacheBustUrl = `${url}?t=${Date.now()}`;
-        
-        const response = await fetch(cacheBustUrl, {
-            mode: 'cors',
-            headers: {
-                'Cache-Control': 'no-cache'
-            }
-        });
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch ${type} image`);
+    const cacheBustUrl = `${url}?t=${Date.now()}`;
+    
+    // Try multiple methods to fetch the image
+    const proxies = [
+        '', // Direct fetch first
+        'https://api.allorigins.win/raw?url=',
+        'https://corsproxy.io/?'
+    ];
+    
+    for (let proxy of proxies) {
+        try {
+            const proxyUrl = proxy + encodeURIComponent(cacheBustUrl);
+            const finalUrl = proxy === '' ? cacheBustUrl : proxyUrl;
+            
+            const response = await fetch(finalUrl, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'image/*,*/*;q=0.8'
+                }
+            });
+            
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            const blob = await response.blob();
+            return URL.createObjectURL(blob);
+        } catch (error) {
+            console.warn(`${type} fetch failed with ${proxy || 'direct'}:`, error);
+            continue;
         }
-        
-        const blob = await response.blob();
-        return URL.createObjectURL(blob);
     }
+    
+    // All methods failed, show placeholder
+    console.error(`All fetch methods failed for ${type}`);
+    return this.createPlaceholderImage(type);
+}
+
+createPlaceholderImage(type) {
+    // Create a simple placeholder
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 200;
+    const ctx = canvas.getContext('2d');
+    
+    // Background
+    ctx.fillStyle = '#f8f9fa';
+    ctx.fillRect(0, 0, 400, 200);
+    
+    // Border
+    ctx.strokeStyle = '#dee2e6';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, 398, 198);
+    
+    // Text
+    ctx.fillStyle = '#6c757d';
+    ctx.font = '16px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${type.charAt(0).toUpperCase() + type.slice(1)} Image`, 200, 90);
+    ctx.fillText('Temporarily Unavailable', 200, 120);
+    
+    return canvas.toDataURL();
+}
     
     displayImage(imageUrl, type) {
         const imageMap = {
