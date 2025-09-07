@@ -27,41 +27,71 @@ class LionsGateTrafficApp {
         });
     }
     
+    
     async fetchAllData() {
-        this.showLoading();
+    this.showLoading();
+    
+    try {
+        // Set images directly (they may work in some browsers)
+        const timestamp = Date.now();
         
-        try {
-            const promises = [
-                this.fetchImage(this.webcamURL, 'webcam'),
-                this.fetchImage(this.delayURL, 'delay'),
-                this.fetchImage(this.queueURL, 'queue')
-            ];
-            
-            const results = await Promise.allSettled(promises);
-            
-            // Process results
-            results.forEach((result, index) => {
-                if (result.status === 'fulfilled') {
-                    const imageType = ['webcam', 'delay', 'queue'][index];
-                    this.displayImage(result.value, imageType);
-                }
-            });
-            
-            // Analyze queue map for lane configuration
-            if (results[2].status === 'fulfilled') {
-                await this.analyzeQueueMap(results[2].value);
-            } else {
-                this.setTimeBasedLaneConfig();
-            }
-            
-            this.updateLastUpdated();
-            this.hideLoading();
-            
-        } catch (error) {
-            this.showError(`Failed to fetch traffic data: ${error.message}`);
-            this.hideLoading();
-        }
+        document.getElementById('webcamImage').src = `${this.webcamURL}?t=${timestamp}`;
+        document.getElementById('delayImage').src = `${this.delayURL}?t=${timestamp}`;
+        document.getElementById('queueImage').src = `${this.queueURL}?t=${timestamp}`;
+        
+        // Add error handlers
+        this.setupImageErrorHandlers();
+        
+        // Set lane configuration
+        this.setTimeBasedLaneConfig();
+        this.updateLastUpdated();
+        this.hideLoading();
+        
+    } catch (error) {
+        this.showError(`Failed to load traffic data: ${error.message}`);
+        this.setTimeBasedLaneConfig();
+        this.hideLoading();
     }
+}
+
+setupImageErrorHandlers() {
+    const images = [
+        { id: 'webcamImage', type: 'Webcam' },
+        { id: 'delayImage', type: 'Delay Info' },
+        { id: 'queueImage', type: 'Queue Map' }
+    ];
+    
+    images.forEach(img => {
+        const element = document.getElementById(img.id);
+        element.onerror = () => {
+            element.style.display = 'none';
+            
+            // Create error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'image-error';
+            errorDiv.innerHTML = `
+                <div style="
+                    background: #f8f9fa; 
+                    border: 2px dashed #dee2e6; 
+                    padding: 20px; 
+                    text-align: center; 
+                    border-radius: 8px; 
+                    color: #6c757d;
+                ">
+                    <p><strong>${img.type} Image</strong></p>
+                    <p>Temporarily unavailable due to CORS restrictions</p>
+                    <small>Images work directly: <a href="${element.src}" target="_blank">View Here</a></small>
+                </div>
+            `;
+            
+            element.parentNode.insertBefore(errorDiv, element);
+        };
+        
+        element.onload = () => {
+            console.log(`${img.type} image loaded successfully`);
+        };
+    });
+}
     
     async fetchImage(url, type) {
     const cacheBustUrl = `${url}?t=${Date.now()}`;
