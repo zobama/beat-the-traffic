@@ -3,95 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lions Gate Bridge Traffic</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2196F3">
+    <title>Lions Gate Bridge Traffic Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .webcam-section {
+            padding: 30px;
+        }
+
+        .webcam-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cam-button {
+            padding: 10px 20px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .cam-button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .cam-button.active {
+            background: #764ba2;
+        }
+
+        .webcam-container {
+            position: relative;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .webcam-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .overlay-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .lane-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .lane-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .lane-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .lane-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .lane-indicator {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .lane {
+            flex: 1;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .lane.open {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            animation: pulse 2s infinite;
+        }
+
+        .lane.closed {
+            background: linear-gradient(135deg, #f44336, #da190b);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .refresh-button {
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .refresh-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .refresh-button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .update-time {
+            text-align: center;
+            color: #666;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .error-message {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .webcam-controls {
+                justify-content: center;
+            }
+            
+            .overlay-info {
+                font-size: 12px;
+                padding: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🌉 Lions Gate Bridge Traffic</h1>
-            <p id="lastUpdated" class="last-updated">Loading...</p>
-        </header>
-
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Loading traffic data...</p>
+        <div class="header">
+            <h1>🌉 Lions Gate Bridge Traffic Monitor</h1>
+            <p>Real-time webcam feed</p>
         </div>
 
-        <main id="content" style="display: none;">
-            <!-- Live Webcam -->
-            <section class="card">
-                <h2>📹 Live Webcam</h2>
-                <img id="webcamImage" alt="Lions Gate Bridge Webcam" class="traffic-image">
-            </section>
+        <div class="webcam-section">
+            <div class="webcam-controls">
+                <button class="cam-button active" onclick="switchCamera(0)">LGB North Shore (Looking South)</button>
+                <button class="cam-button" onclick="switchCamera(1)">Georgia St at Chilco (Looking South)</button>
+                <button class="cam-button" onclick="switchCamera(2)">Taylor Way at Marine Dr (Looking North)</button>
+                <button class="cam-button" onclick="switchCamera(3)">LGB North End (Looking North)</button>
+            </div>
 
-            <!-- Lane Configuration -->
-            <section class="card" id="laneConfig">
-                <h2>🚗 Lane Configuration</h2>
-                <div class="lane-display">
-                    <div class="lane-info northbound">
-                        <span class="label">Northbound</span>
-                        <span id="nbLanes" class="lane-count">-</span>
+            <div class="webcam-container">
+                <img id="webcamImage" class="webcam-image" src="" alt="Lions Gate Bridge Webcam">
+                <div class="overlay-info">
+                    <div>Camera: <span id="cameraName">Loading...</span></div>
+                    <div>Status: <span id="status">Active</span></div>
+                </div>
+            </div>
+
+            <div class="update-time" id="updateTime">Last updated: Loading...</div>
+
+            <!-- <div class="lane-status">
+                <div class="lane-card">
+                    <h3>⬆️ Northbound (To North Shore)</h3>
+                    <div class="lane-indicator" id="northboundLanes">
+                        <div class="lane open">1</div>
+                        <div class="lane open">2</div>
+                        <div class="lane closed">3</div>
                     </div>
-                    <div class="lane-info southbound">
-                        <span class="label">Southbound</span>
-                        <span id="sbLanes" class="lane-count">-</span>
+                    <div class="status-text">
+                        <strong>Status:</strong> <span id="northStatus">2 lanes open</span>
                     </div>
                 </div>
-                <p class="analysis-info">
-                    <span id="confidence">-</span>% confidence • <span id="method">-</span>
-                </p>
-            </section>
 
-            <!-- Traffic Delays -->
-            <section class="card">
-                <h2>⏱️ Traffic Delays</h2>
-                <img id="delayImage" alt="Traffic Delays" class="traffic-image">
-            </section>
-
-            <!-- Queue Map -->
-            <section class="card">
-                <h2>🗺️ Traffic Queue Map</h2>
-                <img id="queueImage" alt="Traffic Queue Map" class="traffic-image">
-            </section>
-
-            <!-- Debug Info -->
-            <section class="card debug-card">
-                <button id="debugToggle" class="debug-button">
-                    🔍 Computer Vision Debug <span id="debugArrow">▼</span>
-                </button>
-                <div id="debugInfo" class="debug-content" style="display: none;">
-                    <div class="debug-row">
-                        <span>Total Vehicles:</span>
-                        <span id="debugVehicles">-</span>
+                <div class="lane-card">
+                    <h3>⬇️ Southbound (To Vancouver)</h3>
+                    <div class="lane-indicator" id="southboundLanes">
+                        <div class="lane closed">1</div>
+                        <div class="lane open">2</div>
+                        <div class="lane open">3</div>
                     </div>
-                    <div class="debug-row">
-                        <span>Northbound:</span>
-                        <span id="debugNB">-</span>
-                    </div>
-                    <div class="debug-row">
-                        <span>Southbound:</span>
-                        <span id="debugSB">-</span>
-                    </div>
-                    <div class="debug-row">
-                        <span>Traffic Density:</span>
-                        <span id="debugDensity">-</span>
+                    <div class="status-text">
+                        <strong>Status:</strong> <span id="southStatus">1 lane open</span>
                     </div>
                 </div>
-            </section>
+            </div>
 
-            <!-- Error Display -->
-            <div id="errorMessage" class="error-message" style="display: none;"></div>
-        </main>
+            <div class="error-message" style="display: none;" id="errorMessage">
+                ⚠️ Note: Lane detection is simulated. For real implementation, computer vision API integration would be required.
+            </div>
 
-        <!-- Refresh Button -->
-        <button id="refreshBtn" class="refresh-button">
-            <span id="refreshIcon">🔄</span> Refresh All
-        </button>
-    </div>
+            <button class="refresh-button" onclick="refreshAll()">
+                <span id="refreshText">🔄 Refresh & Analyze</span>
+            </button>
+        </div>
+    </div> -->
 
-    <script src="script.js"></script>
+    <script>
+        // Camera configurations
+        const cameras = [
+            { id: 18, name: "LGB North End (Looking South)", url: "https://images.drivebc.ca/bchighwaycam/pub/cameras/18.jpg" },
+            { id: 19, name: "Georgia Street", url: "https://images.drivebc.ca/bchighwaycam/pub/cameras/19.jpg" },
+            { id: 21, name: "Stanley Park Causeway", url: "https://images.drivebc.ca/bchighwaycam/pub/cameras/21.jpg" },
+            { id: 20, name: "Marine Drive at Taylor Way", url: "https://images.drivebc.ca/bchighwaycam/pub/cameras/20.jpg" },
+        ];
+
+        let currentCamera = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWebcam();
+            simulateLaneAnalysis();
+            setInterval(refreshAll, 60000); // Auto-refresh every minute
+        });
+
+        function switchCamera(index) {
+            currentCamera = index;
+            
+            // Update button states
+            document.querySelectorAll('.cam-button').forEach((btn, i) => {
+                if (i === index) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            loadWebcam();
+            simulateLaneAnalysis();
+        }
+
+        function loadWebcam() {
+            const img = document.getElementById('webcamImage');
+            const cameraName = document.getElementById('cameraName');
+            const camera = cameras[currentCamera];
+            
+            // Add timestamp to prevent caching
+            const timestamp = new Date().getTime();
+            img.src = camera.url + '?t=' + timestamp;
+            
+            cameraName.textContent = camera.name;
+            
+            img.onerror = () => {
+                img.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="800" height="600"%3E%3Crect fill="%23f0f0f0" width="800" height="600"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" font-family="Arial" font-size="24" fill="%23999"%3ECamera feed temporarily unavailable%3C/text%3E%3C/svg%3E';
+                document.getElementById('errorMessage').style.display = 'block';
+            };
+            
+            updateTime();
+        }
+
+        function simulateLaneAnalysis() {
+            // Simulate lane configuration changes based on time of day
+            const hour = new Date().getHours();
+            let northLanes, southLanes;
+            
+            // Lions Gate Bridge typically has 3 lanes total
+            // Configuration changes based on rush hour patterns
+            if (hour >= 6 && hour < 10) {
+                // Morning rush - favor southbound to Vancouver
+                northLanes = 1;
+                southLanes = 2;
+            } else if (hour >= 15 && hour < 19) {
+                // Evening rush - favor northbound to North Shore
+                northLanes = 2;
+                southLanes = 1;
+            } else {
+                // Off-peak - balanced configuration
+                northLanes = 1;
+                southLanes = 2;
+            }
+            
+            updateLaneDisplay('northboundLanes', northLanes, 3);
+            updateLaneDisplay('southboundLanes', southLanes, 3);
+            
+            document.getElementById('northStatus').textContent = `${northLanes} lane${northLanes > 1 ? 's' : ''} open`;
+            document.getElementById('southStatus').textContent = `${southLanes} lane${southLanes > 1 ? 's' : ''} open`;
+        }
+
+        function updateLaneDisplay(elementId, openLanes, totalLanes) {
+            const container = document.getElementById(elementId);
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= totalLanes; i++) {
+                const lane = document.createElement('div');
+                lane.className = i <= openLanes ? 'lane open' : 'lane closed';
+                lane.textContent = i;
+                container.appendChild(lane);
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('en-CA', { 
+                timeZone: 'America/Vancouver',
+                dateStyle: 'medium',
+                timeStyle: 'medium'
+            });
+            document.getElementById('updateTime').textContent = `Last updated: ${timeString} PT`;
+        }
+
+        function refreshAll() {
+            const button = document.getElementById('refreshText');
+            button.innerHTML = '<span class="loading"></span> Refreshing...';
+            
+            setTimeout(() => {
+                loadWebcam();
+                simulateLaneAnalysis();
+                button.innerHTML = '🔄 Refresh & Analyze';
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
